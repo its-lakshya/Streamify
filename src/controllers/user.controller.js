@@ -162,8 +162,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
-  const incommingRefreshToken =
-    req.cookies.refreshToken || req.body.refreshToken;
+  const incommingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
   if (!incommingRefreshToken) {
     throw new apiResponse(401, "Unauthorized request");
@@ -212,7 +211,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-const newRefreshToken = asyncHandler(async (req, res) => {
+const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { oldpassword, newPassword } = req.body;
 
   const user = await User.findById(req.user._id);
@@ -444,10 +443,11 @@ export {
   loginUser,
   logoutUser,
   refreshAccessToken,
-  newRefreshToken,
+  changeCurrentPassword,
   getCurrentUser,
   updateAccountDetails,
   updateUserAvatar,
   updateUserCoverImage,
-  getUserChannelProfile
+  getUserChannelProfile,
+  getWatchHistory
  };
