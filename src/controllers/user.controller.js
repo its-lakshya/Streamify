@@ -5,6 +5,7 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { apiResponse } from "../utils/apiresponse.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
@@ -87,7 +88,6 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
-  console.log(username, email);
   if (!username && !email) {
     throw new apiError(404, "username or email is required");
   }
@@ -140,8 +140,8 @@ const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: {
-        refreshToken: undefined,
+      $unset: {
+        refreshToken: 1,
       },
     },
     {
@@ -174,7 +174,11 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       process.env.REFRESH_TOKEN_SECRET
     );
 
+    console.log(decodedToken, incommingRefreshToken)
+
     const user = await User.findById(decodedToken?._id);
+
+    console.log(user)
 
     if (!user) {
       throw new apiError(401, "Invalid refresh token");
@@ -189,19 +193,18 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       secure: true,
     };
 
-    const { accessToken, newRefreshToken } =
-      await generateAccessAndRefreshTokens(user._id);
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
 
     return res
       .status(200)
       .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", newRefreshToken, options)
+      .cookie("refreshToken", refreshToken, options)
       .json(
         new apiResponse(
           200,
           {
             accessToken,
-            refreshToken: newRefreshToken,
+            refreshToken: refreshToken,
           },
           "Access token refreshed successfully"
         )
@@ -236,7 +239,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
-  const { fullname, email } = req.body;
+  const { username, fullname, email } = req.body;
 
   if (!fullname || !email) {
     throw new apiError(400, "All fields are required");
@@ -246,6 +249,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     req.user?._id,
     {
       $set: {
+        username,
         fullname,
         email,
       },
@@ -295,7 +299,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
-  if (!avacoverImagetar.url) {
+  if (!coverImage.url) {
     throw new apiResponse(400, "Error while uploading cover image");
   }
 
@@ -418,12 +422,16 @@ const getWatchHistory = asyncHandler(async (req, res) => {
                 }
               ]
             }
+          },
+          {
+            $addFields:{
+              owner: {
+                $first: "$owner"
+              }
+            }
           }
         ]
       },
-      $addFields:{
-        $first: "$owner"
-      }
     },
   ])
 
