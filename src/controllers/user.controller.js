@@ -325,7 +325,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     throw new apiError(400, "Username is missing")
   }
 
-  User.find({username})
+  // User.find({username})
 
   const channel = await User.aggregate([
     {
@@ -381,7 +381,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
   ])
 
   if(!channel?.length){
-    throw new apiError(404, "channer does not exist")
+    throw new apiError(404, "channel does not exist")
   }
 
   return res
