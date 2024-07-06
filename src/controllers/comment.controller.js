@@ -103,6 +103,24 @@ const deleteComment = asyncHandler(async (req, res) => {
 
 });
 
-const updateComment = asyncHandler(async (req, res) => {});
+const updateComment = asyncHandler(async (req, res) => {
+  const { commentId } = req.params
+  const updatedComment = req.body?.content;
+
+  if(!commentId){
+    throw new apiError("No comments found to update")
+  }
+
+  const comment = await Comment.findByIdAndUpdate(commentId, {content: updatedComment}, {new: true})
+
+  if(!comment){
+    throw new apiError(500, "Something went wrong while updating the comment");
+  }
+
+  return res
+    .status(200)
+    .json(new apiResponse(200, "Comment updated successfully"));
+
+});
 
 export { getVideoComments, addComment, deleteComment, updateComment };
