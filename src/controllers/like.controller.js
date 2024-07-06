@@ -96,6 +96,19 @@ const toggleTweetLike = asyncHandler(async (req, res) => {
 })
 
 const getLikedVideos = asyncHandler(async (req, res) => {
+  const user = req.user;
+
+  const likedVideos = await Like.find({ likedBy: user, video: {$exists: true, $ne: null} })
+  // const likedVideos = await Like.find({ likedBy: user, video: {$exists: true, $ne: null} }).populate('video').exec()
+  // const likedVideos = await Like.find({ likedBy: user, video: {$exists: true, $ne: null} }).populate('video') // without exec it will work but it is prefered to use exec
+
+  if(!likedVideos){
+    throw new apiError(500, "Something went wrong while fetching liked videos")
+  }
+
+  return res
+    .status(200)
+    .json(new apiResponse(200, likedVideos, "liked video fetched successfuly"))
 
 })
 
