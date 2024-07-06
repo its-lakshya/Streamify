@@ -166,8 +166,8 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 
   const video = await Video.findById(videoId);
 
-  if(!video){
-    throw new apiError(404, "Bad request, No video found")
+  if (!video) {
+    throw new apiError(404, "Bad request, No video found");
   }
 
   const publishStatus = await Video.findByIdAndUpdate(
@@ -183,8 +183,21 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(
-      new apiResponse(200, publishStatus, publishStatus ? "Video is published successfully" : "Video is unpublished successfully" )
-    )
+      new apiResponse(
+        200,
+        publishStatus,
+        publishStatus
+          ? "Video is published successfully"
+          : "Video is unpublished successfully"
+      )
+    );
 });
 
-export { getAllVideos, publishAVideo, getVideoById, updateVideo, deleteVideo, togglePublishStatus };
+export {
+  getAllVideos,
+  publishAVideo,
+  getVideoById,
+  updateVideo,
+  deleteVideo,
+  togglePublishStatus,
+};
