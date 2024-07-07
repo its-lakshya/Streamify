@@ -3,6 +3,7 @@ import { User } from "../models/user.model.js";
 import { apiError } from "../utils/apiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { apiResponse } from "../utils/apiresponse.js";
+import mongoose from "mongoose";
 
 const createTweet = asyncHandler(async (req, res) => {
   const { content } = req.body;
@@ -54,7 +55,27 @@ const getUserTweets = asyncHandler(async (req, res) => {
 });
 
 const updateTweet = asyncHandler(async (req, res) => {
-  
+  const { tweetId } = req.params;
+  const { content } = req.body
+
+  if(!mongoose.isValidObjectId(tweetId)){
+    throw new apiError("Invalid tweet id")
+  }
+
+  if(!content || content === ""){
+    throw new apiError("No tweet provided")
+  }
+
+  const tweet = await Tweet.findByIdAndUpdate(tweetId, {content: content}, {new: true})
+
+  if(!tweet){
+    throw new apiError(500, "Something went wrong while updtating the tweet")
+  }
+
+  return res
+    .status(200)
+    .json(new apiResponse(200, "Tweet updated successfully"))
+
 });
 
 const deleteTweet = asyncHandler(async (req, res) => {});
