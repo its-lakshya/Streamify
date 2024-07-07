@@ -55,7 +55,28 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 })
 
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
-  
+  const { channelId } = req.params;
+
+  if(!mongoose.isValidObjectId(channelId)){
+    throw new apiError(404, "Invalid channel id")
+  }
+
+  const channel = await User.findById(channelId);
+
+  if(!channel){
+    throw new apiError(404, "No channel found");
+  }
+
+  const subscribers = await Subscription.find({channel}).populate('subscriber').exec();
+
+  if(!subscribers){
+    throw new apiError(500, "Something went wrong while fetching subscribers list");
+  }
+
+  return res
+    .status(200)
+    .json(new apiResponse(200, subscribers, "Subscribers list fetched successfuly"));
+
 })
 
 const getSubscribedChannels = asyncHandler(async (req, res) => {
