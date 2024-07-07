@@ -154,7 +154,41 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 });
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
+  const { playlistId, videoId } = req.params;
+
+  if(!mongoose.isValidObjectId(playlistId)){
+    throw new apiError(404, "Invalid playlist id")
+  }
+
+  if(!mongoose.isValidObjectId(videoId)){
+    throw new apiError(404, "Invalid video id")
+  }
+
   
+  const playlist = await Playlist.findById(playlistId)
+  
+  if (!playlist) {
+    throw new Error('Playlist not found');
+  }
+  
+  const indexToRemove = playlist.videos.indexOf(videoId);
+
+  if (indexToRemove === -1) {
+    throw new Error('Video is not found in the playlist');
+  }
+
+  playlist.videos.splice(indexToRemove, 1);
+
+  const updatedPlaylist = await playlist.save();
+
+  if(!updatedPlaylist){
+    throw new apiError(500, "Something went wrong while updating the playlist")
+  }
+
+  return res
+    .status(200)
+    .json(new apiResponse(200, "Video removed from playlist succussfully"));
+
 });
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
