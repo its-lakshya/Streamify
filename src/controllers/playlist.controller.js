@@ -72,7 +72,33 @@ const deletePlaylist = asyncHandler(async (req, res) => {
 });
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
-  
+  const { playlistId, videoId } = req.params;
+
+  if(!mongoose.isValidObjectId(playlistId)){
+    throw new apiError(404, "Invalid playlist id")
+  }
+
+  if(!mongoose.isValidObjectId(videoId)){
+    throw new apiError(404, "Invalid video id")
+  }
+
+  const videoToAdd = await Video.findById(videoId);
+
+  if (!videoToAdd) {
+    throw new Error('Video not found');
+  }
+
+  const playlist = await Playlist.findById(playlistId)
+
+  if (!playlist) {
+    throw new Error('Playlist not found');
+  }
+
+  playlist.videos = playlist.videos.concat(videoToAdd);
+
+  return res
+    .status(200)
+    .json(new apiResponse(200, "Video added to playlist successfully"))
   
 });
 
