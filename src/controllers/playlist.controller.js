@@ -76,7 +76,24 @@ const updatePlaylist = asyncHandler(async (req, res) => {
     throw new apiError(404, "playlist description is required")
   }
 
+  const playlist = await Playlist.findById(playlistId)
 
+  if (!playlist) {
+    throw new Error('Playlist not found');
+  }
+
+  playlist.name = name;
+  playlist.description =  description;
+
+  const updatedPlaylist = await playlist.save()
+
+  if(!updatedPlaylist){
+    throw new apiError(500, "Something went wrong while updated the playlist")
+  }
+
+  return res
+    .status(200)
+    .json(new apiResponse(200, "Playlist updated successfully"));
 
 });
 
@@ -130,7 +147,11 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
   
 });
 
-const removeVideoFromPlaylist = asyncHandler(async (req, res) => {});
+const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
+  
+
+
+});
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
   const { userId } = req.params;
