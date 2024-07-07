@@ -141,6 +141,12 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 
   playlist.videos = playlist.videos.concat(videoToAdd);
 
+  const updatedPlaylist = await playlist.save()
+
+  if(!updatedPlaylist){
+    throw new apiError(500, "Something went wrong while adding video to the playlist")
+  }
+
   return res
     .status(200)
     .json(new apiResponse(200, "Video added to playlist successfully"))
@@ -149,8 +155,6 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
   
-
-
 });
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
