@@ -78,7 +78,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
   }
   else{
     const liked = new Like({comment: comment, likedBy: user})
-    liked.save();
+    await liked.save();
 
     if(!liked){
       throw new apiError(500, "Something went while liking the comment")
