@@ -79,7 +79,27 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {});
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
-  
+  const { userId } = req.params;
+
+  if(!mongoose.isValidObjectId(userId)){
+    throw new apiError(404, "Invalid user id")
+  }
+
+  const user = await User.findById(userId);
+
+  if(!user){
+    throw new apiError(404, "No user found");
+  }
+
+  const userPlaylist = await Playlist.find({owner: user})
+
+  if(!userPlaylist){
+    throw new apiError(500, "Something went wrong while fetching user playlist")
+  }
+
+  return res
+    .status(200)
+    .json(new apiResponse(200, userPlaylist, "User playlist fetched successfully"))
 
 });
 
