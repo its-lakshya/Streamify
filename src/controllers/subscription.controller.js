@@ -59,7 +59,29 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 })
 
 const getSubscribedChannels = asyncHandler(async (req, res) => {
-  
+  const { subscriberId } = req.params;
+
+  if(!mongoose.isValidObjectId(subscriberId)){
+    throw new apiError(404, "Invalid subscriber id");
+  }
+
+  const user = await User.findById(subscriberId);
+
+  if(!user){
+    throw new apiError(404, "No such user found");
+  }
+
+  // const subscribedChannels = await Subscription.find({ subscriber: user }).populate('subscriber').populate('channel').exec();
+  const subscribedChannels = await Subscription.find({ subscriber: user });
+
+  if(!subscribedChannels){
+    throw new apiError(500, "Something went wrong while fetching the subscribed channels list");
+  }
+
+  return res
+    .status(200)
+    .json(new apiResponse(200, subscribedChannels, "Subscribed channel list fetched successfuly"));
+
 })
 
 export {
