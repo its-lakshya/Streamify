@@ -42,7 +42,21 @@ const createPlaylist = asyncHandler(async (req, res) => {
 });
 
 const getPlaylistById = asyncHandler(async (req, res) => {
-  
+  const { playlistId } = req.params;
+
+  if(!mongoose.isValidObjectId(playlistId)){
+    throw new apiError(404, "Invalid playlist id")
+  }
+
+  const playlist = await Playlist.findById(playlistId);
+
+  if(!playlist){
+    throw new apiError(200, "Something went wrong while fetching playlist")
+  }
+
+  return res
+    .status(200)
+    .json(new apiResponse(200, playlist, "Playlist fetched succussfully"))
 
 });
 
