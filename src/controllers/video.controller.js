@@ -1,3 +1,4 @@
+import { compareSync } from "bcrypt";
 import { Video } from "../models/video.model.js";
 import { apiError } from "../utils/apiError.js";
 import { apiResponse } from "../utils/apiresponse.js";
